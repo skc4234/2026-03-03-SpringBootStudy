@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+<style type="text/css">
+.container {
+	margin-top: 30px
+}
+.row {
+	margin: 0px auto;
+	width: 600px;
+}
+h3 {
+	text-align: center;
+}
+</style>
+<script type="text/javascript" src="http://code.jquery.com/jquery.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+<script type="text/javascript">
+let stompClient=null
+function connection(){
+	const socket=new SockJS('ws-chat')
+	stompClient=Stomp.over(socket)
+	stompClient.connect({},function(){
+		stompClient.subscribe('/topic/public',function(msg){
+			// JSON => String
+			const data=JSON.parse(msg.body)
+			console.log(msg)
+			console.log(msg.body)
+			showMessage(data)
+		})
+	})
+}
+function sendMessage(){
+	// JSON => String 형식으로 전송
+	stompClient.send('/app/chat.send',{},JSON.stringify({
+		sender: $('#sender').val(),
+		message: $('#message').val()
+	}))
+}
+function showMessage(data){
+	// data => 서버에서 전송된 메시지
+	$('#chat').append(
+		'<li>['+data.sender+']'+data.message+'('+data.time+')</li>'
+	)
+}
+connection()
+/*
+ * 
+     - 매칭
+     	1. new SockJS('ws-chat')
+     		=> registry.addEndpoint("/ws-chat")
+     	2. stompClient.send('app/chat.send')
+     		=> @MessageMapping("chat.send")
+     	3. @SendTo("/topic/public")
+     		=> stompClient.subscribe('/topic/public',function(){})
+     		=> URI로 매칭
+ 
+ 
+ 
+ */
+</script>
+</head>
+<body>
+<!-- 
+	HTTP 확장 => HTTP는 양방향 지속성(실시간x)
+	AI에서 데이터를 받는 경우 => WebSocket으로 실시간 전송
+		=> RAG / 임베디드
+	1. stomp
+		- WebSocket 기반의 메시지를 주고받기를 위한 메시지 프로토콜
+		- 규칙을 만들어서 사용(사용자 정의)
+		- /topic/chat, /topic/ono
+	2. WebSocket
+		- 서버와 클라이언트 간에 실시간 양방향 통신 기술
+	3. SockJS
+		- WebSocket이 안될때 HTTP 기반의 통신 기술로 대체하는 라이브러리(CDN)
+	4. Kafka
+		- 서버와 서버간에 대규모 이벤트 메시지를 비동기로 전달하는 분선 메시징 기술
+	5. Redis
+		- 데이터를 메모리에 빠르게 저장 / 조회 할 수 있게 해주는 인메모리 데이터 저장 장소
+		- 캐시 / 세션 / 실시간 데이터 등
+		- AI에서 사용많음
+		
+	Kafka / Redix
+	메시지 보관,크롤링 / 데이터 관리,저장
+	
+ -->
+<div class="container">
+	<div class="row">
+		<h3>WebSocket Chatting</h3>
+		<table class="table">
+		  <tbody>
+		  	<tr>
+		  	  <th width="15%" class="text-center">
+		  	  	이름
+		  	  <td width="85%">
+		  	  	<input type="text" id=sender size=20 class="input-sm">
+		  	  </td>
+		  	</tr>
+		  	<tr>
+		  	  <th width="15%" class="text-center">
+		  	  	메시지
+		  	  <td width="85%">
+		  	  	<input type="text" id="message" size=50 class="input-sm">
+		  	  </td>
+		  	</tr>
+		  	<tr>
+		  	  <td colspan="2" class="text-center">
+		  	  	<button type="button" class="btn btn-sm btn-primary"
+		  	  		onclick="sendMessage()">
+		  	  	  전송
+		  	  	</button>
+		  	  </td>
+		  	</tr>
+		  </tbody>
+		</table>
+		<div id="chat">
+			
+		</div>
+	</div>
+</div>
+</body>
+</html>
