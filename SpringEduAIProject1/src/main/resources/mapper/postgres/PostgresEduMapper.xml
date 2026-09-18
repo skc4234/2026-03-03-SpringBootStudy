@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sist.web.mapper.postgres.PostgresEduMapper">
+	<!-- 
+		parameterType 생략 가능 (insert, update, delete)
+		
+		private int id,course_no,instructor_no;
+		private String content,embedding,title;
+	 -->
+	<insert id="saveCourseVector" parameterType="com.sist.web.vo.CourseVectorVO">
+		INSERT INTO course_vector(
+			course_no,
+			title,
+			instructor_no,
+			chunk_no,
+			content,
+			embedding
+		) VALUES(
+			#{course_no},
+			#{title},
+			#{instructor_no},
+			#{chunk_no},
+			#{content},
+			#{embedding}::vector
+		)
+	</insert>
+	<!-- 
+	private Long id,question_no,course_no;
+	private int theme,type,difficulty;
+	private String title,description,answer,option1,option2,option3,option4,
+		content,embedding;
+	 -->
+	 <insert id="saveQuestionVector" parameterType="com.sist.web.vo.QuestVectorVO">
+	 	INSERT INTO question_vector(
+	 		question_no,
+	 		theme,
+	 		type,
+	 		difficulty,
+	 		title,
+	 		description,
+	 		answer,
+	 		option1,
+	 		option2,
+	 		option3,
+	 		option4,
+	 		content,
+	 		embedding
+	 	) VALUES(
+	 		#{question_no},
+	 		#{theme},
+	 		#{type},
+	 		#{difficulty},
+	 		#{title},
+	 		#{description},
+	 		#{answer},
+	 		#{option1},
+	 		#{option2},
+	 		#{option3},
+	 		#{option4},
+	 		#{content},
+	 		#{embedding}::vector
+	 	)
+	 	
+	 	ON CONFLICT(question_no)
+	 	DO UPDATE SET
+	 		question_no=EXCLUDED.question_no,
+	 		theme=EXCLUDED.theme,
+	 		type=EXCLUDED.type,
+	 		difficulty=EXCLUDED.difficulty,
+	 		title=EXCLUDED.title,
+	 		description=EXCLUDED.description,
+	 		answer=EXCLUDED.answer,
+	 		option1=EXCLUDED.option1,
+	 		option2=EXCLUDED.option2,
+	 		option3=EXCLUDED.option3,
+	 		option4=EXCLUDED.option4,
+	 		content=EXCLUDED.content,
+	 		embedding=EXCLUDED.embedding 	
+	 </insert>
+	 <!-- 
+	 	ON CONFLICT(question_no)
+	 	DO UPDATE SET
+	 	중복이 된 경우에 INSERT => UPDATE
+	 	중복 생성 불가
+	 	
+	 	- Oracle
+	 	insert into question_vector q
+	 	using(
+	 		select #{question_no} question_no,
+	 		#{title} title
+	 	)
+	 	on(q.question.no=s.question.no)
+	 	
+	  -->
+</mapper>

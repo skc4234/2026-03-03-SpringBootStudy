@@ -1,0 +1,21 @@
+# port 결정 => default 8080 => 9090
+# Eginx: 80 / Jenkins: 8080 => port 번호 충돌 안나게 변경
+server:
+  port: 9090
+  servlet:
+    context-path: /
+spring:
+  thymeleaf:
+    cache: false
+    encoding: UTF-8
+    prefix: classpath:templates/
+    suffix: .html
+    mode: HTML
+  ai:
+    google:
+      genai:
+        api-key: ${GEN_KEY}
+        project-id: gen-lang-client-0069069343
+        location: us-central1
+        chat:
+          model: gemini-3.6-flash

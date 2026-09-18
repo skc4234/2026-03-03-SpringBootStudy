@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sist.web.mapper.oracle.OracleEduMapper">
+  <select id="courseAllData" resultType="com.sist.web.vo.CourseVO">
+  	SELECT *
+  	FROM course
+  	ORDER BY no ASC
+  	OFFSET 600 ROWS FETCH NEXT 200 ROWS ONLY
+  </select>
+  <resultMap type="com.sist.web.vo.QuestionVO" id="questionMap">
+ 	<result property="evo.option1" column="option1"/>
+ 	<result property="evo.option2" column="option2"/>
+ 	<result property="evo.option3" column="option3"/>
+ 	<result property="evo.option4" column="option4"/>
+  </resultMap>
+  <select id="questionAllData" resultMap="questionMap">
+  	SELECT q.no,q.title,q.answer,q.score,q.description,q.theme,
+  		   q.type,q.difficulty,
+  		   o.option1,o.option2,o.option3,o.option4
+  	FROM exam_question q
+  	LEFT JOIN exam_option o
+  	ON q.no=o.question_no
+  	ORDER BY q.no ASC
+  	OFFSET 600 ROWS FETCH NEXT 800 ROWS ONLY
+  </select>
+</mapper>
